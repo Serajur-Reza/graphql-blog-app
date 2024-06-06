@@ -4,17 +4,27 @@ type Query {
     me: User,
     users: [User]
     posts: [Post]
-    profile(userId: ID!): Profile
+    profile: Profile
 }
 
 type Mutation {
     signup(name: String!, email: String!, password: String!, bio: String): AuthPayload
 
     signin(email: String!, password: String!): AuthPayload
+
+    addPost(post: PostInput!): PostPayload
+
+    updatePost(postId: String!, post: PostInput!) : PostPayload
+
+    deletePost(postId: String!) : PostPayload
+
+    publishPost(postId: String!) : PostPayload
 }
 
 
 type AuthPayload {userError: String ,token: String}
+
+type PostPayload {userError: String ,post: Post}
 
 type Post {
     id: ID!,
@@ -33,7 +43,7 @@ type User{
     createdAt: String!,
     updatedAt:  String!,
     published: Boolean!
-    post: [Post]
+    posts: [Post]
 }
 
 type Profile{
@@ -43,5 +53,9 @@ type Profile{
     updatedAt:  String!,
     published: Boolean!
     user: User!
+}
+
+input PostInput {
+title: String, content: String
 }
 `;

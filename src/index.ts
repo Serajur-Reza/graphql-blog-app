@@ -3,6 +3,21 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
 
+import { Prisma, PrismaClient } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
+import { jwtHelper } from "./utils/jwtHelper";
+
+export const prisma = new PrismaClient();
+
+interface Context {
+  prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>;
+  userInfo:
+    | {
+        userId: number | null;
+      }
+    | undefined;
+}
+
 async function main() {
   const server = new ApolloServer({
     typeDefs,
@@ -11,6 +26,12 @@ async function main() {
 
   const { url } = await startStandaloneServer(server, {
     listen: { port: 4000 },
+    context: async ({ req, res }): Promise<Context> => {
+      const userInfo = await jwtHelper.getUserInfoFromToken(
+        req.headers.authorization as string
+      );
+      return { prisma, userInfo };
+    },
   });
 
   console.log(`🚀  Server ready at: ${url}`);
